@@ -14,7 +14,6 @@ p_6_given_fair <- 1/6
 
 p_not_6_given_fair <- 1/6
 
-
 posterior_probabilities_loaded <- vector(length=length(rolls), mode="double")
 
 posterior_probabilities_fair <- vector(length=length(rolls), mode="double")
