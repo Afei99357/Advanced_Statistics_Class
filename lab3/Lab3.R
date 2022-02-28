@@ -60,7 +60,7 @@ for( i in 1:numIterations )
 
 ##########################  Question 1(C)
 ### The three  posterior curves are now matched up to each other. 
-### This is different than the the plot in 1(B) is because with more samples to start with
+### This is different than the the plot in 1(B) is because with more events to start with
 
 rm(list=ls())
 piOld <- 0.5
