@@ -74,6 +74,6 @@ adjusted_pvalues <- p.adjust(pValueList, method="BH")
 
 hist(adjusted_pvalues, xlim=c(0,1))
 
-## fromt the histgram, we can see there is no significant p-value below 10%.
+## from the histgram, we can see there is no significant p-value below 10%.
 
 
