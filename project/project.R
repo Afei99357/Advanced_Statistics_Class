@@ -47,16 +47,36 @@ get_anova_pvalues <- function(dataframe) {
   return(pvalueList)
 }
 
-pvalueList_anova <- get_anova_pvalues(myTable)
+pvalues_anova <- get_anova_pvalues(myTable)
 
-hist(pvalueList_anova)
+hist(pvalues_anova, breaks = 100)
 
 adjusted_pvalues_anova <- p.adjust(pvalueList_anova, method="BH")
 
-hist(adjusted_pvalues_anova, xlim=c(0,1))
+hist(adjusted_pvalues_anova, breaks = 100)
 
+counts <- function(dataset) {
+  newIndex <- vector()
+  counts <- 0
+  for(i in 1: length(dataset)){
+    
+    if(is.na(dataset[i])) 
+    {print(i)} 
+    else 
+    {if(dataset[i] < 0.05){
+      counts <- counts + 1
+      newIndex <- append(newIndex, i)
+    }} 
+  }
+  return(list(counts, newIndex))
+  
+}
+
+count <- counts(adjusted_pvalues_anova)
 
 ###### perform t test between normal(Reduction) cell and cells in different cancer stages.
+
+counts_list_correction <- vector()
 
 # 1. Reduction(normal) vs. Basal
 df_Reduction_Basal <- myTable %>% select(ends_with('Reduction') | ends_with('Basal'))
@@ -75,12 +95,13 @@ get_ttest_pvalues <- function(dataframe,group_a_name, group_b_name) {
   return(pvalueList)
 }
 
-pvalueListBasal <- get_ttest_pvalues(df_Reduction_Basal,"Reduction", "Basal")
+pvalue_basal_vs_reduction <- get_ttest_pvalues(df_Reduction_Basal,"Reduction", "Basal")
 
-hist(pvalueListBasal)
+hist(pvalue_basal_vs_reduction, breaks = 20)
 
-adjusted_pvalues_basal <- p.adjust(pvalueListBasal, method="BH")
+adjusted_pvalues_basal <- p.adjust(pvalue_basal_vs_reduction, method="BH")
 
+counts_list_correction[1] <- counts(adjusted_pvalues_basal)[1]
 
 
 # 2. Reduction(normal) vs. DCIS
@@ -88,11 +109,13 @@ df_Reduction_DCIS <- myTable %>% select(ends_with('Reduction') | ends_with('DCIS
 
 columnNameList <- colnames(df_Reduction_DCIS)
 
-pvalueListDCIS <- get_ttest_pvalues(df_Reduction_DCIS,"Reduction", "DCIS")
+pvalue_DCIS_vs_reduction <- get_ttest_pvalues(df_Reduction_DCIS,"Reduction", "DCIS")
 
-hist(pvalueListDCIS)
+hist(pvalue_DCIS_vs_reduction, breaks = 20)
 
-adjusted_pvalues_DCIS <- p.adjust(pvalueListDCIS, method="BH")
+adjusted_pvalues_DCIS <- p.adjust(pvalue_DCIS_vs_reduction, method="BH")
+
+counts_list_correction[2] <- counts(adjusted_pvalues_DCIS)[1]
 
 
 #3. Reduction(normal) vs. HER2
@@ -100,11 +123,13 @@ df_Reduction_HER2 <- myTable %>% select(ends_with('Reduction') | ends_with('HER2
 
 columnNameList <- colnames(df_Reduction_HER2)
 
-pvalueListHER2 <- get_ttest_pvalues(df_Reduction_HER2,"Reduction", "HER2")
+pvalue_HER2_vs_reduction <- get_ttest_pvalues(df_Reduction_HER2,"Reduction", "HER2")
 
-hist(pvalueListHER2)
+hist(pvalue_HER2_vs_reduction, breaks = 20)
 
-adjusted_pvalues_HER2 <- p.adjust(pvalueListHER2, method="BH")
+adjusted_pvalues_HER2 <- p.adjust(pvalue_HER2_vs_reduction, method="BH")
+
+counts_list_correction[3] <- counts(adjusted_pvalues_HER2)[1]
 
 
 #4. Reduction(normal) vs. LumA
@@ -112,11 +137,13 @@ df_Reduction_LumA <- myTable %>% select(ends_with('Reduction') | ends_with('LumA
 
 columnNameList <- colnames(df_Reduction_LumA)
 
-pvalueListLumA <- get_ttest_pvalues(df_Reduction_LumA,"Reduction", "LumA")
+pvalue_LumA_vs_reduction <- get_ttest_pvalues(df_Reduction_LumA,"Reduction", "LumA")
 
-hist(pvalueListLumA)
+hist(pvalue_LumA_vs_reduction, breaks = 20)
 
-adjusted_pvalues_LumA <- p.adjust(pvalueListLumA, method="BH")
+adjusted_pvalues_LumA <- p.adjust(pvalue_LumA_vs_reduction, method="BH")
+
+counts_list_correction[4] <- counts(adjusted_pvalues_LumA)[1]
 
 
 #5. Reduction(normal) vs. LumB
@@ -124,21 +151,29 @@ df_Reduction_LumB <- myTable %>% select(ends_with('Reduction') | ends_with('LumB
 
 columnNameList <- colnames(df_Reduction_LumB)
 
-pvalueListLumB <- get_ttest_pvalues(df_Reduction_LumB,"Reduction", "LumB")
+pvalue_LumB_vs_reduction <- get_ttest_pvalues(df_Reduction_LumB,"Reduction", "LumB")
 
-hist(pvalueListLumB)
+hist(pvalue_LumB_vs_reduction, breaks = 20)
 
-adjusted_pvalue_LumB <- p.adjust(pvalueListLumB, method="BH")
+adjusted_pvalue_LumB <- p.adjust(pvalue_LumB_vs_reduction, method="BH")
+
+counts_list_correction[5] <- counts(adjusted_pvalue_LumB)[1]
 
 
 
 ## perform PCA to see if there is any separation between cells in different stages
-myPca <- princomp(myTable, center = TRUE,scale. = TRUE)
+myPca <- princomp(myTable, scale. = TRUE)
 
-plot(myPca$scores[,1], myPca$scores[,2], col=1:5, cex=1.25,pch=19 )
+variance_explain_list <- myPca$sdev^2 / sum(myPca$sdev^2)
+
+x_axis_title = paste("PC1: ", toString(format(round(variance_explain_list[1], 2), nsmall = 2)))
+
+y_axis_title = paste("PC2: ", toString(format(round(variance_explain_list[2], 2), nsmall = 2)))
+
+plot(myPca$scores[,1], myPca$scores[,2], col=1:5, cex=1.25,pch=19,xlab=x_axis_title, ylab=y_axis_title )
+
 
 groupList <- c("Reduction", "Basal", "DCIS", "LumA", "LumB", "HER2")
 
-legend("topright", legend = paste(groupList), col = 1:5, pch = 19, bty = "n")
-
+legend("topright", legend = paste(groupList), col = 1:5, pch = 19, bty = "n", pt.cex = 1,cex=0.8)
 
