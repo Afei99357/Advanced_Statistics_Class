@@ -12,20 +12,23 @@ myT <-read.table(inFileName,header=TRUE,sep="\t",colClasses=myColClasses)
 
 myTData<-myT[,5:10]
 
-myPCOA <- princomp(myTData)
+myPCA <- princomp(myTData, scale.=TRUE)
+
+library(ggplot2)
+library(ggfortify)
 
 ### Question (2)
-autoplot(myPCOA, data = myT, colour = 'genotype')
-autoplot(myPCOA, data = myT, colour = 'cage')
-autoplot(myPCOA, data = myT, colour = 'time')
+autoplot(myPCA, data = myT, colour = 'genotype')
+autoplot(myPCA, data = myT, colour = 'cage')
+autoplot(myPCA, data = myT, colour = 'time')
 
 ### Question (3)
-p1_cage <- anova(lm(myPCOA$scores[,1] ~ myT$cage))$"Pr(>F)"[1]
-p2_cage <- anova(lm(myPCOA$scores[,2] ~ myT$cage))$"Pr(>F)"[1]
-p1_genotype <- anova(lm(myPCOA$scores[,1] ~ myT$genotype))$"Pr(>F)"[1]
-p2_genotype <- anova(lm(myPCOA$scores[,1] ~ myT$genotype))$"Pr(>F)"[1]
-p1_time <- anova(lm(myPCOA$scores[,1] ~ myT$time))$"Pr(>F)"[1]
-p2_time <- anova(lm(myPCOA$scores[,1] ~ myT$time))$"Pr(>F)"[1]
+p1_cage <- anova(lm(myPCA$scores[,1] ~ myT$cage))$"Pr(>F)"[1]
+p2_cage <- anova(lm(myPCA$scores[,2] ~ myT$cage))$"Pr(>F)"[1]
+p1_genotype <- anova(lm(myPCA$scores[,1] ~ myT$genotype))$"Pr(>F)"[1]
+p2_genotype <- anova(lm(myPCA$scores[,1] ~ myT$genotype))$"Pr(>F)"[1]
+p1_time <- anova(lm(myPCA$scores[,1] ~ myT$time))$"Pr(>F)"[1]
+p2_time <- anova(lm(myPCA$scores[,1] ~ myT$time))$"Pr(>F)"[1]
 
 #create matrix with 4 columns
 tab <- matrix(c(p1_cage, p2_cage, p1_genotype, p2_genotype, p1_time, p2_time), 

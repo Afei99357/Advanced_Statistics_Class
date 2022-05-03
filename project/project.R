@@ -177,3 +177,8 @@ groupList <- c("Reduction", "Basal", "DCIS", "LumA", "LumB", "HER2")
 
 legend("topright", legend = paste(groupList), col = 1:5, pch = 19, bty = "n", pt.cex = 1,cex=0.8)
 
+# pc1_anova_pvalue <- anova(lm(factors ~ as.numeric(myPca$scores[,1])))$"Pr(>F)"[1]
+
+
+
+
