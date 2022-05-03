@@ -166,9 +166,12 @@ myPca <- princomp(myTable, scale. = TRUE)
 
 variance_explain_list <- myPca$sdev^2 / sum(myPca$sdev^2)
 
-x_axis_title = paste("PC1: ", toString(format(round(variance_explain_list[1], 2), nsmall = 2)))
+pc1 = variance_explain_list[1] * 100
+pc2 = variance_explain_list[2] * 100
 
-y_axis_title = paste("PC2: ", toString(format(round(variance_explain_list[2], 2), nsmall = 2)))
+x_axis_title = paste("PC1: ", toString(format(round(pc1, 2), nsmall = 2)), "%")
+
+y_axis_title = paste("PC2: ", toString(format(round(pc2, 2), nsmall = 2)), "%")
 
 plot(myPca$scores[,1], myPca$scores[,2], col=1:5, cex=1.25,pch=19,xlab=x_axis_title, ylab=y_axis_title )
 
